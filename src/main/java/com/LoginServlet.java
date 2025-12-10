@@ -7,40 +7,43 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.io.IOException;
-import java.util.List;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
+    // ✅ Handle GET requests → load login page
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse res)
+            throws ServletException, IOException {
+        req.getRequestDispatcher("login.jsp").forward(req, res);
+    }
+
+    // ✅ Handle POST requests → login check
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res)
-            throws IOException {
+            throws IOException, ServletException {
 
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
-        // get list from servlet context
-        List<User> users = (List<User>) getServletContext().getAttribute("users");
+        UserDAO dao = new UserDAO(DBConnect.getConn());
+        User u = dao.getUserByUsername(username);
 
-        boolean found = false;
+        if (u != null && BCrypt.checkpw(password, u.getPassword())) {
 
-        for (User u : users) {
-            if (u.getUsername().equals(username) && u.getPassword().equals(password)) {
-                found = true;
-                break;
-            }
-        }
-
-        if (found) {
-            //create session
             HttpSession sess = req.getSession();
-            sess.setAttribute("username", username);
-            //forward to profile page
-            res.sendRedirect("profile.jsp");
-        }else {
-            res.getWriter().println("Invalid username or password.");
+            sess.setAttribute("userId", u.getId());
+            sess.setAttribute("username", u.getUsername());
+            sess.setAttribute("email", u.getEmail());
+
+            res.sendRedirect("users.jsp");
+
+        } else {
+            req.setAttribute("error", "Invalid username or password.");
+            req.getRequestDispatcher("login.jsp").forward(req, res);
         }
     }
-
 }

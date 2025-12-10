@@ -6,72 +6,68 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 @WebServlet("/register")
 public class RegistrationServlet extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
 
-        List<User> users = (List<User>) getServletContext().getAttribute("users");
+        String name     = req.getParameter("name");
+        String email    = req.getParameter("email");
+        String username = req.getParameter("username");
+        String password = req.getParameter("password");
 
-        if (users == null) {
-            users = new ArrayList<>();
-            getServletContext().setAttribute("users", users);
-        }
+        // ✅ Basic validation
+        if (name == null || name.trim().isEmpty() ||
+                email == null || email.trim().isEmpty() ||
+                username == null || username.trim().isEmpty() ||
+                password == null || password.trim().isEmpty()) {
 
-        String username = request.getParameter("username");
-        String email    = request.getParameter("email");
-        String password = request.getParameter("password");
-
-        List<String> errors = new ArrayList<>();
-
-        if (username == null || username.trim().isEmpty()) {
-            errors.add("Username is required.");
-        }
-
-        if (email == null || email.trim().isEmpty()) {
-            errors.add("Email is required.");
-        }
-
-        if (password == null || password.trim().isEmpty()) {
-            errors.add("Password is required.");
-        } else if (password.length() < 6) {
-            errors.add("Password must be at least 6 characters.");
-        }
-
-        for (User u : users) {
-            if (u.getUsername().equals(username)) {
-                errors.add("Username already taken.");
-                break;
-            }
-        }
-
-        if (!errors.isEmpty()) {
-            response.setContentType("text/html");
-            PrintWriter out = response.getWriter();
-
-            out.println("<h2>Registration Failed</h2>");
-            out.println("<ul>");
-            for (String err : errors) {
-                out.println("<li>" + err + "</li>");
-            }
-            out.println("</ul>");
-            out.println("<a href=\"register.html\">Go back</a>");
+            req.setAttribute("error", "All fields are required.");
+            req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, res);
             return;
         }
 
-        User newUser = new User(username, email, password);
-        users.add(newUser);
+        if (password.length() < 6) {
+            req.setAttribute("error", "Password must be at least 6 characters.");
+            req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, res);
+            return;
+        }
 
-        request.setAttribute("username", username);
-        request.setAttribute("email", email);
+        UserDAO dao = new UserDAO(DBConnect.getConn());
 
-        request.getRequestDispatcher("success.jsp").forward(request, response);
+        // ✅ Check duplicate username or email
+        if (dao.exists(username, email)) {
+            req.setAttribute("error", "Username or email already exists.");
+            req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, res);
+            return;
+        }
+
+        // ✅ Hash password using BCrypt
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        System.out.println("Generated Hash: " + hashedPassword);
+
+
+        User u = new User();
+        u.setName(name);
+        u.setEmail(email);
+        u.setUsername(username);
+        u.setPassword(hashedPassword); // store hash only
+
+        boolean success = dao.register(u);
+
+        if (success) {
+            req.setAttribute("username", username);
+            req.setAttribute("email", email);
+            req.getRequestDispatcher("/WEB-INF/views/success.jsp").forward(req, res);
+        } else {
+            req.setAttribute("error", "Registration failed due to server error.");
+            req.getRequestDispatcher("/WEB=INF/views/register.jsp").forward(req, res);
+        }
     }
 }
