@@ -37,23 +37,30 @@ public class ChangePasswordServlet extends HttpServlet {
             res.getWriter().println("❌ Old password incorrect!");
             return;
         }
+        // 2 New password cannot be same as old password
+       if(BCrypt.checkpw(newPassword, storedHash)){
+           res.getWriter().println("New password cannot be same as the old password!");
+           return;
+       }
 
-        // 2. Validate length
+
+
+        // 3 Validate length
         if (newPassword.length() < 6) {
             res.getWriter().println("❌ New password must be at least 6 characters!");
             return;
         }
 
-        // 3. Check confirm match
+        // 4 Check confirm match
         if (!newPassword.equals(confirmPassword)) {
             res.getWriter().println("❌ New password & confirm password do not match!");
             return;
         }
 
-        // 4. Encrypt new password
+        // 5. Encrypt new password
         String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt());
 
-        // 5. Update in DB
+        // 6. Update in DB
         boolean updated = dao.updatePassword(userId, hashed);
 
         if (updated) {
