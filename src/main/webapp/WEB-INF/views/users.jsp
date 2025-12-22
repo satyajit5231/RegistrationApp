@@ -1,52 +1,83 @@
-<%@ page import="jakarta.servlet.http.HttpSession" %>
-<%@ page import="com.UserDAO" %>
-<%@ page import="com.DBConnect" %>
-<%@ page import="com.User" %>
-
-<%
-    HttpSession sess = request.getSession(false);
-    if (sess == null || sess.getAttribute("userId") == null) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
-
-    int userId = (int) sess.getAttribute("userId");
-
-    UserDAO dao = new UserDAO(DBConnect.getConn());
-    User u = dao.getUserById(userId);
-%>
-
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>User Profile</title>
+    <title>User Profile | RegistrationApp</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
 </head>
 <body>
+<button class="theme-toggle" onclick="toggleTheme()">
+    🌙 / ☀️
+</button>
 
-<h2>Welcome, <%= u.getName() %> 👋</h2>
 
-<table border="1" cellpadding="8" cellspacing="0">
-    <tr>
-        <th>ID</th>
-        <td><%= u.getId() %></td>
-    </tr>
-    <tr>
-        <th>Name</th>
-        <td><%= u.getName() %></td>
-    </tr>
-    <tr>
-        <th>Email</th>
-        <td><%= u.getEmail() %></td>
-    </tr>
-    <tr>
-        <th>Username</th>
-        <td><%= u.getUsername() %></td>
-    </tr>
-</table>
+<%
+    com.model.User u = (com.model.User) request.getAttribute("user");
+    if (u == null) {
+%>
+    <div class="card">
+        <p class="error">User session expired. Please login again.</p>
+        <a class="btn" href="<%= request.getContextPath() %>/login.jsp">Go to Login</a>
+    </div>
+<%
+        return;
+    }
+%>
 
-<br>
-<a href="change-password.jsp">Change Password</a><br><br>
-<a href="logout">Logout</a>
+<div class="card profile-card">
+
+    <div class="profile-header">
+        <div class="avatar">
+            <%= u.getName().substring(0,1).toUpperCase() %>
+        </div>
+        <div>
+            <h2><%= u.getName() %></h2>
+            <p class="subtitle">@<%= u.getUsername() %></p>
+        </div>
+    </div>
+
+    <div class="profile-info">
+        <div class="info-row">
+            <span>User ID</span>
+            <span><%= u.getId() %></span>
+        </div>
+        <div class="info-row">
+            <span>Email</span>
+            <span><%= u.getEmail() %></span>
+        </div>
+        <div class="info-row">
+            <span>Username</span>
+            <span><%= u.getUsername() %></span>
+        </div>
+    </div>
+
+    <div class="profile-actions">
+        <a class="btn-outline" href="<%= request.getContextPath() %>/change-password">
+            🔐 Change Password
+        </a>
+        <a class="btn-danger" href="<%= request.getContextPath() %>/logout">
+            🚪 Logout
+        </a>
+    </div>
+
+</div>
+<script>
+    // Load saved theme
+    if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark");
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle("dark");
+
+        if (document.body.classList.contains("dark")) {
+            localStorage.setItem("theme", "dark");
+        } else {
+            localStorage.setItem("theme", "light");
+        }
+    }
+</script>
+
 
 </body>
 </html>

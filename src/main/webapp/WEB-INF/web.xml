@@ -7,6 +7,44 @@
 
   <display-name>RegistrationApp</display-name>
 
+  <!-- =========================
+       SESSION CONFIGURATION
+       ========================= -->
+  <session-config>
+    <!-- Session expires after 30 minutes of inactivity -->
+    <session-timeout>30</session-timeout>
+  </session-config>
+
+  <!-- =========================
+       AUTH FILTER
+       ========================= -->
+  <filter>
+    <filter-name>AuthFilter</filter-name>
+    <filter-class>com.filter.AuthFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>AuthFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!-- =========================
+       GUEST FILTER
+       ========================= -->
+  <filter>
+    <filter-name>GuestFilter</filter-name>
+    <filter-class>com.filter.GuestFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>GuestFilter</filter-name>
+    <url-pattern>/login</url-pattern>
+    <url-pattern>/register</url-pattern>
+  </filter-mapping>
+
+  <!-- =========================
+       WELCOME FILE
+       ========================= -->
   <welcome-file-list>
     <welcome-file>login</welcome-file>
   </welcome-file-list>

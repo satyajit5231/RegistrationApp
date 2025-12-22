@@ -1,12 +1,8 @@
-package com;
+package com.servlet;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
+import jakarta.servlet.http.*;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 
 @WebServlet("/logout")
@@ -20,6 +16,8 @@ public class LogoutServlet extends HttpServlet {
         if (sess != null) {
             sess.invalidate();
         }
-        res.sendRedirect("login.jsp");
+
+        res.sendRedirect(req.getContextPath() + "/login.jsp");
+
     }
 }

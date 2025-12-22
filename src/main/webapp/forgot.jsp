@@ -2,9 +2,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Change Password | RegistrationApp</title>
+    <title>Forgot Password | RegistrationApp</title>
 
-    <!-- Common CSS -->
+    <!-- Reuse common CSS -->
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css">
 </head>
 <body>
@@ -14,9 +14,9 @@
 
 
 <div class="card">
-    <h2>Change Password 🔒</h2>
+    <h2>Forgot Password 🔐</h2>
     <p class="subtitle">
-        Update your password to keep your account secure
+        Enter your registered email to receive an OTP
     </p>
 
     <!-- ❌ Error message -->
@@ -29,44 +29,24 @@
         }
     %>
 
-    <!-- ✅ Success message -->
-    <%
-        String msg = (String) request.getAttribute("message");
-        if (msg != null) {
-    %>
-        <div class="success"><%= msg %></div>
-    <%
-        }
-    %>
-
-    <form action="<%= request.getContextPath() %>/change-password" method="post">
+    <form action="<%= request.getContextPath() %>/sendotp" method="post">
 
         <div class="input-group">
-            <label>Old Password</label>
+            <label>Email Address</label>
             <input
-                type="password"
-                name="oldPassword"
-                placeholder="Enter current password"
+                type="email"
+                name="email"
+                placeholder="Enter your registered email"
                 required
             >
         </div>
 
-        <div class="input-group">
-            <label>New Password</label>
-            <input
-                type="password"
-                name="newPassword"
-                placeholder="Enter new password"
-                required
-            >
-        </div>
-
-        <button class="btn">Update Password</button>
+        <button class="btn">Send OTP</button>
     </form>
 
     <div class="link">
-        <a href="<%= request.getContextPath() %>/users">
-            ← Back to Dashboard
+        <a href="<%= request.getContextPath() %>/login.jsp">
+            ← Back to Login
         </a>
     </div>
 </div>
@@ -86,7 +66,6 @@
         }
     }
 </script>
-
 
 </body>
 </html>
