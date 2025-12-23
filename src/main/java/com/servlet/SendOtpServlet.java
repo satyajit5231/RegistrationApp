@@ -74,8 +74,8 @@ public class SendOtpServlet extends HttpServlet {
                 EmailSender.sendEmail(
                         email,
                         "Account Recovery OTP",
-                        "Your OTP is: " + otp +
-                                "\nValid for 5 minutes.\nDo not share this OTP."
+                        "otp bataiye baddie ji: " + otp +
+                                "\nSaare paise nikal lunga.\nyou and your heart have been hacked."
                 );
             }
 
