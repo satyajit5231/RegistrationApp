@@ -84,10 +84,8 @@ public class SendOtpServlet extends HttpServlet {
             // 5️⃣ Forward to OTP verification
             req.getRequestDispatcher("/WEB-INF/views/verifyotp.jsp")
                     .forward(req, res);
-
             rs.close();
             ps.close();
-
         } catch (Exception e) {
             e.printStackTrace();
             res.sendRedirect(req.getContextPath() + "/forgot.jsp");
